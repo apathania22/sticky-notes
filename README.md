@@ -1,69 +1,29 @@
-# React + TypeScript + Vite
+**Sticky Notes**
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A tiny single-page app for desktop that lets you create and manage sticky notes:
+  - Create notes (fixed size) with predefined colors (round-robin).
+  - Edit text directly inside the note.
+  - Drag to move notes around the board.
+  - Delete by dropping a note onto the Trash zone.
+  - Persist notes to LocalStorage (restored on reload).
 
-Currently, two official plugins are available:
+**Architecture**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The app keeps things intentionally small and readable. A single stateful component, Board, owns the entire notes array (Note[]). It handles creation, drag-to-move, trash-to-delete, and persistence (save on change, lazy-load on startup). The drag action is stored in a ref so mousemove events don’t cause constant re-renders; the board converts global mouse coordinates to board-relative ones and clamps positions to keep notes visible.
 
-## Expanding the ESLint configuration
+Presentational components are deliberately dumb: Toolbar (create button + hint), Note (renders one note, raises onMoveStart and onTextChange), and Trash (fixed drop zone that highlights when a dragged note overlaps). Small, pure helpers live in utils/geometry.ts (clamp, rectsOverlap), and shared types in models.ts. Styling is plain CSS in App.css. This split makes each piece easy to skim, swap, or test without introducing frameworks or complex state managers.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+***Running locally***
+Prereqs
+- Node.js 18+ and npm (or pnpm/yarn)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Setup
+```
+  cd sticky-notes
+  npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Start dev server
+```
+  npm run dev
 ```
